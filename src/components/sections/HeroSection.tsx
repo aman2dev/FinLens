@@ -38,7 +38,7 @@ export function HeroSection() {
           variants={slideUp}
           className="mx-auto mt-8 max-w-2xl text-lg text-muted-foreground md:text-xl"
         >
-          The premiere platform for sophisticated financial clarity. FinLens brings OLED-optimized precision to your personal economy.
+          The premiere platform for sophisticated financial clarity. FinLens brings high-definition precision to your personal economy.
         </motion.p>
 
         <motion.div

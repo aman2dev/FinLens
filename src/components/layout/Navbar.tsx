@@ -48,12 +48,14 @@ export function Navbar() {
         </div>
 
         <div className="flex items-center gap-4">
-          <Link href="/dashboard" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary hidden sm:block">
-            Dashboard
+          <Link href="/auth/login" className="text-sm font-bold text-muted-foreground transition-colors hover:text-primary">
+            Sign In
           </Link>
-          <Button className="rounded-full px-6 font-semibold">
-            Get Pro
-          </Button>
+          <Link href="/auth/signup">
+            <Button className="rounded-full px-6 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all">
+              Join Now
+            </Button>
+          </Link>
         </div>
       </div>
     </motion.nav>

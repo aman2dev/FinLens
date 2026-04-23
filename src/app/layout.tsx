@@ -13,7 +13,7 @@ const bricolage = Bricolage_Grotesque({
 
 export const metadata: Metadata = {
   title: "FinLens | Premium Debt Visualization",
-  description: "Sophisticated finance tracking with high-contrast clarity and OLED-optimized design.",
+  description: "Sophisticated finance tracking with high-contrast clarity and precision-driven design.",
 };
 
 import { FinancialProvider } from "@/hooks/use-financial-data";
