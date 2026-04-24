@@ -19,7 +19,6 @@ export function AuthForm({ type }: AuthFormProps) {
     e.preventDefault();
     setIsLoading(true);
     
-    // Simulate mock authentication delay
     setTimeout(() => {
       setIsLoading(false);
       router.push("/dashboard");

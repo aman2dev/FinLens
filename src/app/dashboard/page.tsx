@@ -100,7 +100,7 @@ export default function DashboardPage() {
                     <p className="text-sm text-muted-foreground font-medium">{stat.label}</p>
                     <h3 className="text-2xl font-bold mt-1 tracking-tight font-heading">{stat.value}</h3>
                     
-                    {/* Background glow effect on hover */}
+
                     <div className={cn(
                         "absolute -bottom-10 -right-10 h-32 w-32 blur-[60px] opacity-0 transition-opacity group-hover:opacity-10",
                         stat.color === 'primary' ? "bg-primary" : "bg-destructive"
@@ -110,9 +110,9 @@ export default function DashboardPage() {
         })}
       </motion.div>
 
-      {/* Main Grid Section */}
+
       <div className="grid gap-6 lg:grid-cols-3 pb-24 md:pb-0">
-        {/* Main Chart */}
+
         <div className="lg:col-span-2 p-6 sm:p-8 rounded-3xl border border-border/40 bg-card/20 min-h-[350px] sm:min-h-[400px] flex flex-col order-1">
             <div className="flex items-center justify-between mb-8">
                 <h2 className="font-heading text-xl font-bold">Wealth Performance</h2>
@@ -126,7 +126,7 @@ export default function DashboardPage() {
             <WealthPerformance />
         </div>
 
-        {/* Sidebar Column */}
+
         <div className="space-y-6 sm:space-y-8 order-2">
             <div className="p-6 sm:p-8 rounded-3xl border border-border/40 bg-card/20 h-fit">
                 <h3 className="font-heading font-bold text-lg mb-6">Categorical Split</h3>
