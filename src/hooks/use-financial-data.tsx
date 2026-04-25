@@ -1,6 +1,8 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
+import { supabase } from "@/lib/supabase";
+import { User } from "@supabase/supabase-js";
 
 export type Category = 
   | "Food & Dining" 
@@ -21,17 +23,20 @@ export interface Transaction {
   isShared: boolean;
   totalSharedAmount?: number;
   owesMe?: number;
+  user_id?: string;
 }
 
 interface FinancialContextType {
   transactions: Transaction[];
-  addTransaction: (t: Omit<Transaction, "id">) => void;
-  deleteTransaction: (id: string) => void;
+  addTransaction: (t: Omit<Transaction, "id">) => Promise<void>;
+  deleteTransaction: (id: string) => Promise<void>;
   isSharedView: boolean;
   setIsSharedView: (v: boolean) => void;
   getTotalWealth: () => number;
   getActiveDebt: () => number;
   getMonthlySavings: () => number;
+  user: User | null;
+  loading: boolean;
 }
 
 const FinancialContext = createContext<FinancialContextType | undefined>(undefined);
@@ -39,35 +44,78 @@ const FinancialContext = createContext<FinancialContextType | undefined>(undefin
 export function FinancialProvider({ children }: { children: React.ReactNode }) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isSharedView, setIsSharedView] = useState(false);
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // Load from LocalStorage
   useEffect(() => {
-    const saved = localStorage.getItem("finlens_transactions");
-    if (saved) {
-      try {
-        setTransactions(JSON.parse(saved));
-      } catch (e) {
-        console.error("Failed to parse transactions", e);
-      }
-    }
+    // Check active sessions
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      setLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  // Save to LocalStorage
   useEffect(() => {
-    localStorage.setItem("finlens_transactions", JSON.stringify(transactions));
-  }, [transactions]);
+    if (user) {
+      fetchTransactions();
+    } else {
+      setTransactions([]);
+    }
+  }, [user]);
 
-  const addTransaction = (t: Omit<Transaction, "id">) => {
-    const newTransaction = { ...t, id: Math.random().toString(36).substring(2, 11) };
-    setTransactions((prev) => [newTransaction, ...prev]);
+  const fetchTransactions = async () => {
+    const { data, error } = await supabase
+      .from('transactions')
+      .select('*')
+      .order('date', { ascending: false });
+    
+    if (error) {
+      console.error("Error fetching transactions:", error);
+    } else {
+      setTransactions(data || []);
+    }
   };
 
-  const deleteTransaction = (id: string) => {
-    setTransactions((prev) => prev.filter((t) => t.id !== id));
+  const addTransaction = async (t: Omit<Transaction, "id">) => {
+    if (!user) return;
+
+    const { data, error } = await supabase
+      .from('transactions')
+      .insert([{ ...t, user_id: user.id }])
+      .select()
+      .single();
+
+    if (error) {
+      console.error("Error adding transaction:", error);
+    } else if (data) {
+      setTransactions((prev) => [data, ...prev]);
+    }
+  };
+
+  const deleteTransaction = async (id: string) => {
+    if (!user) return;
+
+    const { error } = await supabase
+      .from('transactions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error("Error deleting transaction:", error);
+    } else {
+      setTransactions((prev) => prev.filter((t) => t.id !== id));
+    }
   };
 
   const getTotalWealth = () => {
-    // Basic mock wealth + sum of non-debt transactions
     return 42500 + transactions.reduce((acc, t) => acc - t.amount, 0);
   };
 
@@ -78,7 +126,6 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
   };
 
   const getMonthlySavings = () => {
-    // Mock logic for demo
     return 3100;
   };
 
@@ -92,7 +139,9 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
         setIsSharedView,
         getTotalWealth,
         getActiveDebt,
-        getMonthlySavings
+        getMonthlySavings,
+        user,
+        loading
       }}
     >
       {children}

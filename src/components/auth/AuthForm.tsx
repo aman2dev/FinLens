@@ -1,11 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Mail, Lock, User, Bell } from "lucide-react";
+import { Mail, Lock, User, Bell, AlertCircle } from "lucide-react";
 import Link from "next/link";
+import { supabase } from "@/lib/supabase";
 
 interface AuthFormProps {
   type: "login" | "signup";
@@ -14,15 +15,39 @@ interface AuthFormProps {
 export function AuthForm({ type }: AuthFormProps) {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setError(null);
     
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      if (type === "login") {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password,
+        });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
+          },
+        });
+        if (error) throw error;
+      }
+      
       router.push("/dashboard");
-    }, 1500);
+    } catch (err: any) {
+      setError(err.message || "An unexpected error occurred");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -37,6 +62,20 @@ export function AuthForm({ type }: AuthFormProps) {
             : "Join the elite cohort managing wealth with high-definition clarity."}
         </p>
       </div>
+
+      <AnimatePresence>
+        {error && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="p-4 rounded-xl bg-destructive/10 border border-destructive/20 flex items-center gap-3 text-destructive text-sm font-medium"
+          >
+            <AlertCircle className="h-4 w-4 shrink-0" />
+            <p>{error}</p>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       <div className="grid grid-cols-2 gap-4">
         <Button variant="outline" className="rounded-xl h-12 bg-card/50">
@@ -60,7 +99,7 @@ export function AuthForm({ type }: AuthFormProps) {
               fill="#FBBC05"
             />
             <path
-              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+              d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
               fill="#EA4335"
             />
           </svg>
@@ -96,8 +135,10 @@ export function AuthForm({ type }: AuthFormProps) {
             <input
               required
               type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
               placeholder="name@example.com"
-              className="w-full bg-muted/20 border border-border/50 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary/50 transition-all font-medium"
+              className="w-full bg-muted/20 border border-border/50 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary/50 transition-all font-medium text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
@@ -107,8 +148,10 @@ export function AuthForm({ type }: AuthFormProps) {
             <input
               required
               type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-muted/20 border border-border/50 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary/50 transition-all font-medium"
+              className="w-full bg-muted/20 border border-border/50 rounded-xl py-3 pl-10 pr-4 outline-none focus:border-primary/50 transition-all font-medium text-foreground placeholder:text-muted-foreground"
             />
           </div>
         </div>
