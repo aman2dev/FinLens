@@ -121,7 +121,7 @@ export default function DashboardLayout({
       {/* Main Content */}
       <div className="flex-1 flex flex-col min-w-0 overflow-hidden relative">
         {/* Top Header */}
-        <header className="h-12 border-b border-border/40 flex items-center justify-between px-8 sm:px-10 bg-background/50 backdrop-blur-md">
+        <header className="h-16 border-b border-border/40 flex items-center justify-between px-4 sm:px-10 bg-background/50 backdrop-blur-md">
             <div className="flex items-center gap-4 flex-1">
                 <Link href="/dashboard" className="md:hidden flex items-center gap-2 mr-4">
                     <span className="font-heading text-lg font-bold tracking-tight">FinLens</span>

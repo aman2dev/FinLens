@@ -129,7 +129,7 @@ export default function DashboardPage() {
 
       <div className="grid gap-8 lg:grid-cols-3">
 
-        <div className="lg:col-span-2 p-8 sm:p-10 rounded-[2.5rem] border border-border/40 bg-card/20 min-h-[380px] flex flex-col shadow-inner relative overflow-hidden group">
+        <div className="lg:col-span-2 p-6 sm:p-10 rounded-[2.5rem] border border-border/40 bg-card/20 min-h-[380px] flex flex-col shadow-inner relative overflow-hidden group">
             <div className="flex items-center justify-between mb-6 relative z-10">
                 <div>
                    <h2 className="font-heading text-2xl font-bold">Wealth Chart</h2>
@@ -158,7 +158,7 @@ export default function DashboardPage() {
 
 
         <div className="space-y-8">
-            <div className="p-8 rounded-[2.5rem] border border-border/40 bg-card/20 shadow-inner group transition-all">
+            <div className="p-6 sm:p-8 rounded-[2.5rem] border border-border/40 bg-card/20 shadow-inner group transition-all">
                 <div className="flex items-center justify-between mb-8">
                     <h3 className="font-heading font-bold text-xl">Spending Split</h3>
                     <div className="h-8 w-8 rounded-full bg-red-400/10 flex items-center justify-center text-red-500">
@@ -168,28 +168,28 @@ export default function DashboardPage() {
                 <CategoryBreakdown />
             </div>
 
-            <div className="p-8 rounded-[2.5rem] border border-border/40 bg-card/20 shadow-inner hover:border-primary/20 transition-all">
+            <div className="p-6 sm:p-8 rounded-[2.5rem] border border-border/40 bg-card/20 shadow-inner hover:border-primary/20 transition-all">
                 <SocialSplit />
             </div>
         </div>
       </div>
 
-      <div className="p-8 sm:p-10 rounded-[3rem] border border-border/40 bg-card/10 backdrop-blur-xl relative overflow-hidden">
+      <div className="p-6 sm:p-10 rounded-[3rem] border border-border/40 bg-card/10 backdrop-blur-xl relative overflow-hidden">
         <div className="absolute top-0 left-0 w-full h-px bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
         
-        <div className="flex items-center justify-between mb-10 relative z-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center justify-between mb-10 relative z-10">
             <div className="flex items-center gap-4">
-                <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-inner">
+                <div className="h-12 w-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-inner shrink-0">
                     <HistoryIcon className="h-6 w-6" />
                 </div>
                 <div>
-                    <h2 className="font-heading text-2xl font-bold tracking-tight">Recent Activity</h2>
-                    <p className="text-xs text-muted-foreground mt-0.5 font-medium">A quick look at your latest spending and income.</p>
+                    <h2 className="font-heading text-xl sm:text-2xl font-bold tracking-tight">Recent Activity</h2>
+                    <p className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 font-medium line-climb-1 sm:line-clamp-none">A quick look at your latest spending.</p>
                 </div>
             </div>
             <Link 
                 href="/dashboard/history" 
-                className="group flex items-center gap-2 px-4 py-2 rounded-full bg-muted/20 border border-border/40 text-[10px] font-bold text-muted-foreground hover:text-primary hover:border-primary/20 transition-all uppercase tracking-widest"
+                className="group flex items-center justify-center gap-2 px-6 py-2.5 rounded-full bg-muted/20 border border-border/40 text-[10px] font-bold text-muted-foreground hover:text-primary hover:border-primary/20 transition-all uppercase tracking-widest w-fit sm:w-auto"
             >
                 See Full History <ArrowRight className="h-3 w-3 transition-transform group-hover:translate-x-1" />
             </Link>
@@ -200,37 +200,37 @@ export default function DashboardPage() {
                 transactions.slice(0, 5).map((t) => (
                   <div 
                     key={t.id} 
-                    className="flex items-center justify-between p-4 rounded-3xl bg-card/20 border border-border/10 group hover:border-primary/20 transition-all shadow-sm"
+                    className="flex items-center justify-between p-3 sm:p-4 rounded-3xl bg-card/20 border border-border/10 group hover:border-primary/20 transition-all shadow-sm"
                   >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 min-w-0">
                             <div className={cn(
-                                "h-12 w-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 border",
+                                "h-11 w-11 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center transition-all group-hover:scale-105 border shrink-0",
                                 t.type === 'income' ? "bg-primary/5 border-primary/10 text-primary" : "bg-destructive/5 border-destructive/10 text-destructive"
                             )}>
                                 {t.type === 'income' ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownRight className="h-5 w-5" />}
                             </div>
-                            <div>
-                                <p className="text-sm font-bold group-hover:text-primary transition-colors">{t.description}</p>
-                                <div className="flex items-center gap-2 mt-1">
-                                    <span className="text-[10px] text-muted-foreground uppercase font-bold tracking-widest py-0.5 px-2 bg-muted/30 rounded-lg">
+                            <div className="min-w-0 flex-1">
+                                <p className="text-xs sm:text-sm font-bold group-hover:text-primary transition-colors truncate">{t.description}</p>
+                                <div className="flex items-center gap-1.5 mt-1 overflow-hidden">
+                                    <span className="text-[8px] sm:text-[10px] text-muted-foreground uppercase font-bold tracking-widest py-0.5 px-1.5 bg-muted/30 rounded-lg whitespace-nowrap truncate">
                                         {t.category}
                                     </span>
-                                    <span className="text-[9px] text-muted-foreground opacity-60 font-bold uppercase tracking-tighter">
+                                    <span className="text-[8px] sm:text-[9px] text-muted-foreground opacity-60 font-bold uppercase tracking-tighter whitespace-nowrap shrink-0">
                                         {new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}
                                     </span>
                                 </div>
                             </div>
                         </div>
-                        <div className="flex items-center gap-6">
+                        <div className="flex items-center gap-2 sm:gap-6 shrink-0 ml-2">
                             <div className="text-right">
                                 <p className={cn(
-                                    "text-lg font-bold font-heading tabular-nums",
+                                    "text-sm sm:text-lg font-bold font-heading tabular-nums",
                                     t.type === 'income' ? "text-primary" : "text-destructive"
                                 )}>
                                     {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                                 </p>
                                 <span className={cn(
-                                    "text-[9px] px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter border",
+                                    "text-[7px] sm:text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-tighter border",
                                     t.is_shared 
                                         ? "bg-primary/10 border-primary/20 text-primary cursor-help" 
                                         : "bg-muted/10 border-border/40 text-muted-foreground"
@@ -240,7 +240,7 @@ export default function DashboardPage() {
                             </div>
                             <button 
                                 onClick={() => deleteTransaction(t.id)}
-                                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 hover:bg-destructive/10 hover:text-destructive transition-all"
+                                className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all opacity-100 md:opacity-0 md:group-hover:opacity-100"
                             >
                                 <MoreVertical className="h-4 w-4" />
                             </button>

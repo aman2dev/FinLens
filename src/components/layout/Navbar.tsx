@@ -23,7 +23,7 @@ export function Navbar() {
           : "bg-transparent py-5"
       )}
     >
-      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 sm:px-12">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-4 sm:px-12">
         <Link href="/" className="group flex items-center gap-2 shrink-0">
           <span className="font-heading text-2xl font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
             FinLens
@@ -31,12 +31,12 @@ export function Navbar() {
         </Link>
 
         {/* Right: Auth */}
-        <div className="flex items-center gap-6 shrink-0">
+        <div className="flex items-center gap-3 sm:gap-6 shrink-0">
           <Link href="/auth/login" className="text-sm font-bold text-muted-foreground transition-colors hover:text-primary">
             Sign In
           </Link>
           <Link href="/auth/signup">
-            <Button className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95">
+            <Button className="rounded-full px-5 sm:px-8 h-10 sm:h-12 text-xs sm:text-base font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95">
               Join Now
             </Button>
           </Link>

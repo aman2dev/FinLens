@@ -145,60 +145,55 @@ export default function HistoryPage() {
                         transition={{ delay: idx * 0.05 }}
                         className="group relative"
                     >
-                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-[2rem] bg-card/30 border border-border/40 hover:border-primary/20 hover:bg-card/40 transition-all shadow-lg backdrop-blur-sm relative overflow-hidden group">
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-6 rounded-[2rem] bg-card/30 border border-border/40 hover:border-primary/20 hover:bg-card/40 transition-all shadow-lg backdrop-blur-sm relative overflow-hidden group">
                            <div className={cn(
                                "absolute left-0 top-0 bottom-0 w-1 transition-all",
                                t.type === 'income' ? "bg-primary/40 group-hover:bg-primary shadow-[0_0_10px_rgba(16,185,129,0.2)]" : "bg-destructive/40 group-hover:bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.2)]"
                            )} />
 
-                            <div className="flex items-center gap-6 mb-4 sm:mb-0">
+                            <div className="flex items-center gap-4 sm:gap-6 mb-4 sm:mb-0">
                                 <div className={cn(
-                                    "h-14 w-14 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110",
+                                    "h-12 w-12 sm:h-14 sm:w-14 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110 shrink-0",
                                     t.type === 'income' ? "bg-primary/5 text-primary" : "bg-destructive/5 text-destructive"
                                 )}>
-                                    {t.type === 'income' ? <ArrowUpRight className="h-6 w-6 stroke-[2.5]" /> : <ArrowDownRight className="h-6 w-6 stroke-[2.5]" />}
+                                    {t.type === 'income' ? <ArrowUpRight className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" /> : <ArrowDownRight className="h-5 w-5 sm:h-6 sm:w-6 stroke-[2.5]" />}
                                 </div>
-                                <div className="space-y-1">
-                                    <h3 className="text-lg font-bold group-hover:text-primary transition-all tracking-tight leading-none">
+                                <div className="space-y-1 min-w-0">
+                                    <h3 className="text-base sm:text-lg font-bold group-hover:text-primary transition-all tracking-tight leading-tight truncate">
                                         {t.description}
                                     </h3>
-                                    <div className="flex flex-wrap items-center gap-2">
-                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                                            <Tag className="h-3 w-3" />
+                                    <div className="flex flex-wrap items-center gap-1.5">
+                                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/40 border border-border/40 text-[8px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                            <Tag className="h-2.5 w-2.5" />
                                             {t.category}
                                         </div>
-                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                                            <Clock className="h-3 w-3" />
-                                            {new Date(t.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                                        <div className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-muted/40 border border-border/40 text-[8px] sm:text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                            <Clock className="h-2.5 w-2.5" />
+                                            {new Date(t.date).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })}
                                         </div>
-                                        {t.is_shared && (
-                                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary uppercase tracking-widest">
-                                                Shared
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             </div>
 
-                            <div className="flex items-center justify-between sm:justify-end gap-10">
-                                <div className="text-right">
+                            <div className="flex items-center justify-between sm:justify-end gap-6 sm:gap-10">
+                                <div className="text-right flex-1 sm:flex-none">
                                     <p className={cn(
-                                        "text-2xl font-bold font-heading tracking-tight",
+                                        "text-xl sm:text-2xl font-bold font-heading tracking-tight",
                                         t.type === 'income' ? "text-primary" : "text-destructive"
                                     )}>
                                         {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
                                     </p>
-                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity">
-                                        Entry Saved
+                                    <p className="text-[9px] sm:text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em] opacity-60 group-hover:opacity-100 transition-opacity">
+                                        Saved
                                     </p>
                                 </div>
                                 
                                 <button 
                                     onClick={() => deleteTransaction(t.id)}
-                                    className="h-12 w-12 rounded-2xl flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 bg-destructive/5 hover:bg-destructive hover:text-white transition-all shadow-lg"
+                                    className="h-10 w-10 sm:h-12 sm:w-12 rounded-2xl flex items-center justify-center text-muted-foreground opacity-100 sm:opacity-0 sm:group-hover:opacity-100 bg-destructive/5 hover:bg-destructive hover:text-white transition-all shadow-lg"
                                     title="Delete Entry"
                                 >
-                                    <Trash2 className="h-5 w-5" />
+                                    <Trash2 className="h-4 w-4 sm:h-5 sm:w-5" />
                                 </button>
                             </div>
                         </div>

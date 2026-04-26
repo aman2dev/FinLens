@@ -62,7 +62,7 @@ export function SocialSplit() {
                   {debt.avatar}
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-bold truncate max-w-[100px] mb-0.5">{debt.name}</p>
+                  <p className="text-sm font-bold truncate max-w-[80px] sm:max-w-[150px] mb-0.5">{debt.name}</p>
                   <p className="text-[10px] font-bold uppercase tracking-[0.1em] text-primary">
                       OWES {formatCurrency(debt.amount)}
                   </p>

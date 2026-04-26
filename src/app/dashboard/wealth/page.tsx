@@ -193,7 +193,7 @@ export default function WealthPage() {
                 
                 <div className="grid grid-cols-1 gap-3 w-full mt-10">
                     {assetBreakdown.slice(0, 4).map((item) => (
-                        <div key={item.name} className="flex items-center justify-between p-4 rounded-2xl bg-muted/5 border border-border/20 group hover:border-primary/20 transition-all">
+                        <div key={item.name} className="flex items-center justify-between p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-muted/5 border border-border/20 group hover:border-primary/20 transition-all">
                             <div className="flex items-center gap-3">
                                 <div className="h-2.5 w-2.5 rounded-full ring-4 ring-muted transition-all group-hover:scale-125" style={{ backgroundColor: item.color }} />
                                 <span className="text-[11px] font-bold text-muted-foreground uppercase tracking-widest">{item.name}</span>

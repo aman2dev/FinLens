@@ -95,7 +95,7 @@ export function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             className="fixed left-[50%] top-[50%] z-[70] w-full max-w-lg translate-x-[-50%] translate-y-[-50%] p-4 sm:p-6"
           >
-            <div className="rounded-[2.5rem] border border-border/40 bg-card p-6 sm:p-10 shadow-2xl shadow-primary/10 relative overflow-hidden">
+            <div className="rounded-[2.5rem] border border-border/40 bg-card p-6 sm:p-10 shadow-2xl shadow-primary/10 relative overflow-y-auto max-h-[90vh] custom-scrollbar">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
               
               <div className="flex items-center justify-between mb-8">

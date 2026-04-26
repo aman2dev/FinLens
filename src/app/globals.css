@@ -108,7 +108,7 @@
     @apply bg-background text-foreground;
   }
 
-  button, 
+  button,
   a,
   [role="button"] {
     cursor: pointer !important;

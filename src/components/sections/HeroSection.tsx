@@ -26,7 +26,7 @@ export function HeroSection() {
           whileInView="visible"
           viewport={{ once: true }}
           variants={slideUp}
-          className="mx-auto max-w-4xl font-heading text-5xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl"
+          className="mx-auto max-w-4xl font-heading text-4xl font-extrabold tracking-tight sm:text-7xl lg:text-8xl"
         >
           See Your <span className="text-primary italic">Wealth</span>, <br /> 
           Visualize Your <span className="text-destructive">Debt</span>.
