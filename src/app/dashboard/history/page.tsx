@@ -3,196 +3,224 @@
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { 
+  History as HistoryIcon,
   Search, 
+  ChevronDown, 
   Trash2, 
   ArrowUpRight, 
-  ArrowDownRight, 
-  Tag, 
-  ChevronDown,
-  Clock
+  ArrowDownRight,
+  Filter,
+  ArrowRight,
+  Tag,
+  Clock,
+  LayoutGrid,
+  List,
+  Check,
+  FilterX
 } from "lucide-react";
 import { useFinancialData } from "@/hooks/use-financial-data";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/button";
 
 export default function HistoryPage() {
-  const { transactions, removeTransaction } = useFinancialData();
+  const { transactions, deleteTransaction, formatCurrency } = useFinancialData();
   const [searchQuery, setSearchQuery] = useState("");
   const [filterCategory, setFilterCategory] = useState<string>("All");
-
-  const categories = ["All", ...Array.from(new Set(transactions.map((t) => t.category)))];
+  const [isFilterOpen, setIsFilterOpen] = useState(false);
 
   const filteredTransactions = transactions.filter((t) => {
-    const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesSearch = t.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                          t.category.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = filterCategory === "All" || t.category === filterCategory;
     return matchesSearch && matchesCategory;
-  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  });
+
+  const categories = ["All", ...Array.from(new Set(transactions.map(t => t.category)))];
 
   return (
-    <div className="space-y-6 sm:space-y-8 pb-32 md:pb-20">
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-6">
-        <div>
-          <h1 className="font-heading text-3xl font-bold tracking-tight">Transaction Ledger</h1>
-          <p className="text-muted-foreground mt-1 text-sm">Reviewing your high-definition financial history.</p>
+    <div className="space-y-8 pb-32">
+      {/* Header Section */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+            <div className="h-14 w-14 rounded-3xl bg-primary/10 border border-primary/20 flex items-center justify-center text-primary shadow-xl shadow-primary/5">
+                <HistoryIcon className="h-7 w-7" />
+            </div>
+            <div>
+                <h1 className="font-heading text-4xl font-bold tracking-tight">Your History</h1>
+                <p className="text-sm text-muted-foreground font-medium mt-1 uppercase tracking-wider">All your past spending and income</p>
+            </div>
         </div>
-        <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <div className="relative w-full sm:w-64">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+
+        <div className="flex items-center gap-3">
+            <div className="relative group">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within:text-primary transition-colors" />
                 <input 
                     type="text" 
-                    placeholder="Search ledger..." 
+                    placeholder="Search history..." 
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="h-11 w-full bg-card/20 border border-border/40 rounded-2xl pl-10 pr-4 text-sm focus:outline-none focus:border-primary/40 transition-all font-medium"
+                    className="h-12 w-full md:w-64 bg-card/40 border border-border/40 rounded-2xl pl-12 pr-4 text-sm font-medium focus:outline-none focus:border-primary/40 focus:ring-1 focus:ring-primary/10 transition-all shadow-inner"
                 />
             </div>
-            <div className="relative w-full sm:w-auto overflow-hidden">
-                <select 
-                    value={filterCategory}
-                    onChange={(e) => setFilterCategory(e.target.value)}
-                    className="h-11 w-full bg-card/20 border border-border/40 rounded-2xl px-4 text-sm focus:outline-none focus:border-primary/40 appearance-none pr-10 font-bold cursor-pointer transition-all"
+            
+            {/* Custom Filter */}
+            <div className="relative">
+                <button
+                    onClick={() => setIsFilterOpen(!isFilterOpen)}
+                    className={cn(
+                        "h-12 px-6 rounded-2xl border flex items-center gap-3 transition-all font-bold text-sm",
+                        filterCategory !== "All" 
+                            ? "bg-primary/10 border-primary text-primary" 
+                            : "bg-card/40 border-border/40 text-muted-foreground hover:border-primary/40"
+                    )}
                 >
-                    {categories.map(cat => <option key={cat} value={cat}>{cat}</option>)}
-                </select>
-                <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+                    <Filter className={cn("h-4 w-4", filterCategory !== "All" ? "text-primary" : "text-muted-foreground")} />
+                    {filterCategory}
+                    <ChevronDown className={cn("h-4 w-4 transition-transform", isFilterOpen && "rotate-180")} />
+                </button>
+
+                <AnimatePresence>
+                    {isFilterOpen && (
+                        <>
+                            <div className="fixed inset-0 z-40" onClick={() => setIsFilterOpen(false)} />
+                            <motion.div
+                                initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                animate={{ opacity: 1, y: 0, scale: 1 }}
+                                exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                className="absolute right-0 mt-3 w-56 rounded-[2rem] bg-card/90 backdrop-blur-2xl border border-border/40 shadow-2xl p-3 z-50 overflow-hidden"
+                            >
+                                <div className="space-y-1">
+                                    {categories.map((c) => (
+                                        <button
+                                            key={c}
+                                            onClick={() => {
+                                                setFilterCategory(c);
+                                                setIsFilterOpen(false);
+                                            }}
+                                            className={cn(
+                                                "w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-bold transition-all",
+                                                filterCategory === c 
+                                                    ? "bg-primary/20 text-primary" 
+                                                    : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                                            )}
+                                        >
+                                            {c}
+                                            {filterCategory === c && <Check className="h-4 w-4" />}
+                                        </button>
+                                    ))}
+                                </div>
+                            </motion.div>
+                        </>
+                    )}
+                </AnimatePresence>
             </div>
         </div>
       </div>
 
-      <div className="rounded-3xl border border-border/40 bg-card/20 overflow-hidden backdrop-blur-sm">
-        <div className="hidden md:block overflow-x-auto">
-          <table className="w-full text-left border-collapse">
-            <thead>
-              <tr className="border-b border-border/40 bg-muted/20">
-                <th className="p-5 text-xs font-bold uppercase tracking-widest text-muted-foreground">Entity & Date</th>
-                <th className="p-5 text-xs font-bold uppercase tracking-widest text-muted-foreground">Category</th>
-                <th className="p-5 text-xs font-bold uppercase tracking-widest text-muted-foreground">Volume</th>
-                <th className="p-5 text-xs font-bold uppercase tracking-widest text-muted-foreground">Liability</th>
-                <th className="p-5 text-xs font-bold uppercase tracking-widest text-muted-foreground text-right">Actions</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-border/40">
-              <AnimatePresence mode="popLayout">
-                {filteredTransactions.map((t) => (
-                    <motion.tr 
-                        layout
-                        initial={{ opacity: 0, y: 10 }}
+      {/* Stats Quickbar */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {[
+              { label: "Total Rows", value: transactions.length },
+              { label: "Matching", value: filteredTransactions.length },
+              { label: "Shared", value: transactions.filter(t => t.is_shared).length },
+              { label: "Status", value: "Updated" }
+          ].map((stat, i) => (
+              <div key={i} className="p-4 rounded-2xl bg-muted/20 border border-border/40 text-center">
+                  <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest mb-1">{stat.label}</p>
+                  <p className="text-lg font-bold">{stat.value}</p>
+              </div>
+          ))}
+      </div>
+
+      {/* Ledger Feed */}
+      <div className="space-y-4">
+        {filteredTransactions.length > 0 ? (
+            <AnimatePresence mode="popLayout">
+                {filteredTransactions.map((t, idx) => (
+                    <motion.div 
+                        key={t.id}
+                        initial={{ opacity: 0, y: 20 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, scale: 0.95 }}
-                        key={t.id} 
-                        className="group hover:bg-muted/10 transition-colors"
+                        transition={{ delay: idx * 0.05 }}
+                        className="group relative"
                     >
-                    <td className="p-5">
-                      <div className="flex items-center gap-4">
-                        <div className={cn(
-                            "h-10 w-10 rounded-xl flex items-center justify-center shrink-0 shadow-inner",
-                            t.isShared ? "bg-primary/10 text-primary" : "bg-muted/30 text-muted-foreground"
-                        )}>
-                            {t.isShared ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownRight className="h-5 w-5" />}
-                        </div>
-                        <div className="min-w-0">
-                          <p className="text-sm font-bold truncate">{t.description}</p>
-                          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider mt-0.5">
-                            {new Date(t.date).toLocaleDateString('en-US', { day: '2-digit', month: 'short', year: 'numeric' })}
-                          </p>
-                        </div>
-                      </div>
-                    </td>
-                    <td className="p-5">
-                        <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-muted/30 border border-border/40 text-[11px] font-bold">
-                            <Tag className="h-3 w-3" />
-                            {t.category}
-                        </span>
-                    </td>
-                    <td className="p-5">
-                      <p className="text-sm font-heading font-bold">
-                        ${t.amount.toLocaleString(undefined, { minimumFractionDigits: 2 })}
-                      </p>
-                    </td>
-                    <td className="p-5">
-                      <span className={cn(
-                        "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                        t.isShared ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted/10 border-border/40 text-muted-foreground"
-                      )}>
-                        {t.isShared ? "SHARED" : "PERSONAL"}
-                      </span>
-                    </td>
-                    <td className="p-5 text-right">
-                        <button 
-                            onClick={() => removeTransaction(t.id)}
-                            className="h-8 w-8 rounded-lg flex items-center justify-center text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-all"
-                        >
-                            <Trash2 className="h-4 w-4" />
-                        </button>
-                    </td>
-                  </motion.tr>
-                ))}
-              </AnimatePresence>
-            </tbody>
-          </table>
-        </div>
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between p-6 rounded-[2rem] bg-card/30 border border-border/40 hover:border-primary/20 hover:bg-card/40 transition-all shadow-lg backdrop-blur-sm relative overflow-hidden group">
+                           <div className={cn(
+                               "absolute left-0 top-0 bottom-0 w-1 transition-all",
+                               t.type === 'income' ? "bg-primary/40 group-hover:bg-primary shadow-[0_0_10px_rgba(16,185,129,0.2)]" : "bg-destructive/40 group-hover:bg-destructive shadow-[0_0_10px_rgba(239,68,68,0.2)]"
+                           )} />
 
-        <div className="md:hidden divide-y divide-border/40">
-            <AnimatePresence mode="popLayout">
-                {filteredTransactions.map((t) => (
-                    <motion.div 
-                        layout
-                        initial={{ opacity: 0, x: -10 }}
-                        animate={{ opacity: 1, x: 0 }}
-                        exit={{ opacity: 0, scale: 0.95 }}
-                        key={t.id} 
-                        className="p-5 space-y-4 bg-muted/5"
-                    >
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
+                            <div className="flex items-center gap-6 mb-4 sm:mb-0">
                                 <div className={cn(
-                                    "h-10 w-10 rounded-xl flex items-center justify-center shrink-0",
-                                    t.isShared ? "bg-primary/10 text-primary" : "bg-muted/30 text-muted-foreground"
+                                    "h-14 w-14 rounded-2xl flex items-center justify-center transition-all group-hover:scale-110",
+                                    t.type === 'income' ? "bg-primary/5 text-primary" : "bg-destructive/5 text-destructive"
                                 )}>
-                                    {t.isShared ? <ArrowUpRight className="h-5 w-5" /> : <ArrowDownRight className="h-5 w-5" />}
+                                    {t.type === 'income' ? <ArrowUpRight className="h-6 w-6 stroke-[2.5]" /> : <ArrowDownRight className="h-6 w-6 stroke-[2.5]" />}
                                 </div>
-                                <div>
-                                    <p className="text-sm font-bold truncate max-w-[150px]">{t.description}</p>
-                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wider">
-                                        {new Date(t.date).toLocaleDateString('en-US', { day: '2-digit', month: 'short' })}
+                                <div className="space-y-1">
+                                    <h3 className="text-lg font-bold group-hover:text-primary transition-all tracking-tight leading-none">
+                                        {t.description}
+                                    </h3>
+                                    <div className="flex flex-wrap items-center gap-2">
+                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                            <Tag className="h-3 w-3" />
+                                            {t.category}
+                                        </div>
+                                        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-muted/40 border border-border/40 text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                                            <Clock className="h-3 w-3" />
+                                            {new Date(t.date).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })}
+                                        </div>
+                                        {t.is_shared && (
+                                            <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-[10px] font-bold text-primary uppercase tracking-widest">
+                                                Shared
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="flex items-center justify-between sm:justify-end gap-10">
+                                <div className="text-right">
+                                    <p className={cn(
+                                        "text-2xl font-bold font-heading tracking-tight",
+                                        t.type === 'income' ? "text-primary" : "text-destructive"
+                                    )}>
+                                        {t.type === 'income' ? '+' : '-'}{formatCurrency(t.amount)}
+                                    </p>
+                                    <p className="text-[10px] text-muted-foreground font-bold uppercase tracking-[0.2em] opacity-40 group-hover:opacity-100 transition-opacity">
+                                        Entry Saved
                                     </p>
                                 </div>
-                            </div>
-                            <div className="text-right">
-                                <p className="text-lg font-heading font-bold">
-                                    ${t.amount.toLocaleString()}
-                                </p>
+                                
                                 <button 
-                                    onClick={() => removeTransaction(t.id)}
-                                    className="text-[10px] font-bold text-destructive uppercase tracking-widest mt-1"
+                                    onClick={() => deleteTransaction(t.id)}
+                                    className="h-12 w-12 rounded-2xl flex items-center justify-center text-muted-foreground opacity-0 group-hover:opacity-100 bg-destructive/5 hover:bg-destructive hover:text-white transition-all shadow-lg"
+                                    title="Delete Entry"
                                 >
-                                    Delete
+                                    <Trash2 className="h-5 w-5" />
                                 </button>
                             </div>
-                        </div>
-                        <div className="flex items-center gap-2">
-                             <span className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-muted/30 border border-border/40 text-[10px] font-bold">
-                                <Tag className="h-3 w-3" />
-                                {t.category}
-                            </span>
-                            <span className={cn(
-                                "text-[10px] font-bold px-2 py-0.5 rounded-full border",
-                                t.isShared ? "bg-primary/10 border-primary/20 text-primary" : "bg-muted/10 border-border/40 text-muted-foreground"
-                            )}>
-                                {t.isShared ? "SHARED" : "PERSONAL"}
-                            </span>
                         </div>
                     </motion.div>
                 ))}
             </AnimatePresence>
-        </div>
-        
-        {filteredTransactions.length === 0 && (
-            <div className="p-16 sm:p-20 text-center">
-                <div className="h-16 w-16 bg-muted/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <Clock className="h-8 w-8 text-muted-foreground/30" />
+        ) : (
+            <div className="flex flex-col items-center justify-center p-20 rounded-[3rem] border-2 border-dashed border-border/40 bg-card/10 text-center space-y-4">
+                <div className="h-20 w-20 rounded-full bg-muted/20 flex items-center justify-center text-muted-foreground">
+                    <FilterX className="h-10 w-10 opacity-20" />
                 </div>
-                <h3 className="font-heading font-bold text-xl">No records found</h3>
-                <p className="text-muted-foreground text-sm mt-1">Refine your search or log a new entry.</p>
+                <h3 className="text-xl font-bold font-heading">Nothing found</h3>
+                <p className="text-sm text-muted-foreground max-w-xs mx-auto">We couldn't find any entries that match your search.</p>
+                <Button 
+                    onClick={() => {
+                        setSearchQuery("");
+                        setFilterCategory("All");
+                    }}
+                    className="rounded-full px-8 font-bold gap-2"
+                >
+                    Clear Filters
+                </Button>
             </div>
         )}
       </div>

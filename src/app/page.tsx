@@ -7,12 +7,14 @@ import { StorytellingSection } from "@/components/sections/StorytellingSection";
 
 export default function Home() {
   return (
-    <Shell>
+    <>
       <Navbar />
-      <HeroSection />
-      <StorytellingSection />
-      <SpecsSection />
-      <Footer />
-    </Shell>
+      <Shell>
+        <HeroSection />
+        <StorytellingSection />
+        <SpecsSection />
+        <Footer />
+      </Shell>
+    </>
   );
 }

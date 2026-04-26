@@ -19,6 +19,8 @@ import { cn } from "@/lib/utils";
 export default function DebtStrategyPage() {
   const { getActiveDebt } = useFinancialData();
   const [strategy, setStrategy] = useState<"snowball" | "avalanche">("avalanche");
+  const [isLaunching, setIsLaunching] = useState(false);
+  const [isLaunched, setIsLaunched] = useState(false);
 
   const totalDebt = getActiveDebt();
 
@@ -44,6 +46,14 @@ export default function DebtStrategyPage() {
       saveAmount: 1100
     }
   ];
+
+  const handleLaunchPlan = () => {
+    setIsLaunching(true);
+    setTimeout(() => {
+      setIsLaunching(false);
+      setIsLaunched(true);
+    }, 2000);
+  };
 
   return (
     <div className="space-y-8 pb-32 md:pb-20">
@@ -74,7 +84,10 @@ export default function DebtStrategyPage() {
                     return (
                         <button
                             key={s.id}
-                            onClick={() => setStrategy(s.id as any)}
+                            onClick={() => {
+                                setStrategy(s.id as any);
+                                setIsLaunched(false); // Reset if they change strategy
+                            }}
                             className={cn(
                                 "group p-6 rounded-3xl border transition-all text-left relative overflow-hidden",
                                 isActive 
@@ -123,7 +136,7 @@ export default function DebtStrategyPage() {
                         <div className="text-right">
                              <p className="text-xs font-bold text-muted-foreground uppercase tracking-widest mb-1">Potential Interest Savings</p>
                              <h4 className="text-2xl font-heading font-bold text-foreground">
-                                ${strategies.find(s => s.id === strategy)?.saveAmount.toLocaleString()}
+                                 ${strategies.find(s => s.id === strategy)?.saveAmount.toLocaleString()}
                              </h4>
                         </div>
                     </div>
@@ -149,8 +162,29 @@ export default function DebtStrategyPage() {
                         </p>
                     </div>
 
-                    <Button className="w-full h-14 rounded-2xl font-bold shadow-xl shadow-primary/20">
-                        Launch Automated Plan <ArrowRight className="ml-2 h-4 w-4" />
+                    <Button 
+                        onClick={handleLaunchPlan}
+                        disabled={isLaunching || isLaunched}
+                        className={cn(
+                            "w-full h-14 rounded-2xl font-bold transition-all",
+                            isLaunched 
+                                ? "bg-primary/20 text-primary border border-primary animate-pulse shadow-none" 
+                                : "shadow-xl shadow-primary/20"
+                        )}
+                    >
+                        {isLaunching ? (
+                            <div className="flex items-center gap-2">
+                                <div className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
+                                Analyzing Path...
+                            </div>
+                        ) : isLaunched ? (
+                            <div className="flex items-center gap-2">
+                                <CheckCircle2 className="h-5 w-5" />
+                                {strategy.charAt(0).toUpperCase() + strategy.slice(1)} Plan Active
+                            </div>
+                        ) : (
+                            <>Launch Automated Plan <ArrowRight className="ml-2 h-4 w-4" /></>
+                        )}
                     </Button>
                 </div>
 

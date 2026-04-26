@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { slideUp, fadeIn } from "@/lib/motion-variants";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Sparkles } from "lucide-react";
+import Link from "next/link";
 
 export function HeroSection() {
   return (
@@ -16,7 +17,7 @@ export function HeroSection() {
           variants={fadeIn}
           className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-sm font-medium text-primary shadow-[0_0_15px_-3px_rgba(16,185,129,0.2)]"
         >
-          <Sparkles className="h-4 w-4" />
+          <Sparkles className="h-4 w-4 text-yellow-400" />
           <span>Kalyug.js 2026 Submission</span>
         </motion.div>
 
@@ -48,28 +49,30 @@ export function HeroSection() {
           variants={slideUp}
           className="mt-10 flex flex-wrap items-center justify-center gap-4"
         >
-          <Button size="lg" className="h-14 rounded-full px-8 text-lg font-bold group">
-            Launch Dashboard
-            <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
-          </Button>
-          <Button size="lg" variant="outline" className="h-14 rounded-full px-8 text-lg font-bold">
-            Watch Story
-          </Button>
+          <Link href="/dashboard">
+            <Button size="lg" className="h-14 rounded-full px-8 text-lg font-bold group shadow-xl shadow-primary/20 hover:shadow-primary/40 transition-all">
+              Launch Dashboard
+              <ArrowRight className="ml-2 h-5 w-5 transition-transform group-hover:translate-x-1" />
+            </Button>
+          </Link>
         </motion.div>
 
         {/* Dashboard Preview Mockup */}
         <motion.div 
           initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, duration: 1, ease: [0.16, 1, 0.3, 1] }}
+          whileInView={{ y: 0, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
           className="relative mt-20"
         >
           <div className="relative mx-auto max-w-5xl overflow-hidden rounded-2xl border border-border/50 bg-card/50 p-2 backdrop-blur-sm shadow-2xl">
-            <div className="aspect-[16/9] w-full rounded-xl bg-black overflow-hidden relative border border-white/5">
-                <div className="absolute inset-0 bg-gradient-to-br from-primary/20 via-transparent to-destructive/10" />
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-muted-foreground/30 font-heading text-4xl font-bold uppercase tracking-widest rotate-[-15deg]">
-                    FinLens Preview
-                </div>
+            <div className="aspect-[16/9] w-full rounded-xl overflow-hidden relative border border-white/5">
+                <img 
+                    src="/dashboard_image.png" 
+                    alt="FinLens Dashboard Architecture"
+                    className="w-full h-full object-cover"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-background via-transparent to-transparent opacity-40 hover:opacity-0 transition-opacity" />
             </div>
           </div>
           {/* Ambient Glows */}
