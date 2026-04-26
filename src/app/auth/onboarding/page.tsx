@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
@@ -10,12 +10,15 @@ import {
     Loader2, 
     Sparkles, 
     TrendingUp, 
-    Landmark, 
-    Landmark as Building, 
     Coins, 
-    Shield,
     Check,
-    Globe
+    Globe,
+    Utensils,
+    Car,
+    Home,
+    Zap,
+    HeartPulse,
+    ShoppingBag
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
 import { cn } from "@/lib/utils";
@@ -23,17 +26,28 @@ import { useFinancialData } from "@/hooks/use-financial-data";
 
 export default function OnboardingPage() {
   const router = useRouter();
-  const [step, setStep] = useState(0); // Start at 0 for currency
+  const [step, setStep] = useState(0); 
   const [isLoading, setIsLoading] = useState(false);
   
   // Data State
   const [currency, setCurrency] = useState<"USD" | "INR">("USD");
-  const [cash, setCash] = useState("");
-  const [investments, setInvestments] = useState("");
-  const [retirement, setRetirement] = useState("");
-  const [debt, setDebt] = useState("");
+  const [totalWealth, setTotalWealth] = useState("");
   const [income, setIncome] = useState("");
-  const [expenses, setExpenses] = useState("");
+  const [debt, setDebt] = useState("");
+
+  // Expense Categories
+  const [expenseCategories, setExpenseCategories] = useState({
+    food: "",
+    travel: "",
+    rent: "",
+    utilities: "",
+    health: "",
+    shopping: ""
+  });
+
+  const totalMonthlyExpenses = useMemo(() => {
+    return Object.values(expenseCategories).reduce((acc, val) => acc + (parseFloat(val) || 0), 0);
+  }, [expenseCategories]);
 
   const { refreshData } = useFinancialData();
 
@@ -43,47 +57,19 @@ export default function OnboardingPage() {
       const { data: { user } } = await supabase.auth.getUser();
       
       if (user) {
-        // Save currency preference in user metadata or a settings table
-        // For simplicity, we can use metadata or just keep it in context
         await supabase.auth.updateUser({
             data: { currency_preference: currency }
         });
 
         const initialTransactions = [];
 
-        // Cash Position
-        if (parseFloat(cash) > 0) {
+        // Initial Wealth Adjustment (Total Net Worth)
+        if (parseFloat(totalWealth) > 0) {
           initialTransactions.push({
             user_id: user.id,
-            description: "Liquid Cash Reserves",
-            amount: parseFloat(cash),
+            description: "Initial Wealth Baseline",
+            amount: parseFloat(totalWealth),
             category: "Assets",
-            type: "income",
-            date: new Date().toISOString(),
-            is_shared: false
-          });
-        }
-
-        // Investments
-        if (parseFloat(investments) > 0) {
-          initialTransactions.push({
-            user_id: user.id,
-            description: "Market Portfolio",
-            amount: parseFloat(investments),
-            category: "Investments",
-            type: "income",
-            date: new Date().toISOString(),
-            is_shared: false
-          });
-        }
-
-        // Retirement
-        if (parseFloat(retirement) > 0) {
-          initialTransactions.push({
-            user_id: user.id,
-            description: "Retirement Fund (401k/IRA)",
-            amount: parseFloat(retirement),
-            category: "Retirement",
             type: "income",
             date: new Date().toISOString(),
             is_shared: false
@@ -94,7 +80,7 @@ export default function OnboardingPage() {
         if (parseFloat(debt) > 0) {
           initialTransactions.push({
             user_id: user.id,
-            description: "Existing Obligations",
+            description: "Initial Debt Obligations",
             amount: parseFloat(debt),
             category: "Debt",
             type: "expense",
@@ -116,18 +102,21 @@ export default function OnboardingPage() {
           });
         }
 
-        // Expense Baseline
-        if (parseFloat(expenses) > 0) {
-          initialTransactions.push({
-            user_id: user.id,
-            description: "Monthly Expense Baseline",
-            amount: parseFloat(expenses),
-            category: "Other",
-            type: "expense",
-            date: new Date().toISOString(),
-            is_shared: false
-          });
-        }
+        // Expense Breakdown Seeding
+        Object.entries(expenseCategories).forEach(([key, val]) => {
+            const amount = parseFloat(val);
+            if (amount > 0) {
+                initialTransactions.push({
+                    user_id: user.id,
+                    description: `Monthly ${key.charAt(0).toUpperCase() + key.slice(1)} Baseline`,
+                    amount: amount,
+                    category: key === 'rent' ? 'Rent & Housing' : (key === 'food' ? 'Food & Dining' : 'Other'),
+                    type: "expense",
+                    date: new Date().toISOString(),
+                    is_shared: false
+                });
+            }
+        });
 
         if (initialTransactions.length > 0) {
             const { error } = await supabase.from("transactions").insert(initialTransactions);
@@ -145,42 +134,15 @@ export default function OnboardingPage() {
   const steps = [
     {
         id: 1,
-        title: "Liquid Cash",
-        description: "How much cash do you have accessible in savings and checking accounts?",
+        title: "Total Wealth",
+        description: "What is your current total net worth (Cash + Assets + Crypto)?",
         icon: Sparkles,
         color: "primary",
-        value: cash,
-        setter: setCash
+        value: totalWealth,
+        setter: setTotalWealth
     },
     {
         id: 2,
-        title: "Investments",
-        description: "Total value of your stocks, bonds, and crypto portfolios.",
-        icon: Coins,
-        color: "primary",
-        value: investments,
-        setter: setInvestments
-    },
-    {
-        id: 3,
-        title: "Retirement",
-        description: "Consolidated value of your 401k, IRA, or pension funds.",
-        icon: Shield,
-        color: "primary",
-        value: retirement,
-        setter: setRetirement
-    },
-    {
-        id: 4,
-        title: "Current Debt",
-        description: "Total outstanding balances on credit cards, loans, or mortgages.",
-        icon: CreditCard,
-        color: "destructive",
-        value: debt,
-        setter: setDebt
-    },
-    {
-        id: 5,
         title: "Monthly Income",
         description: "Your average monthly take-home pay after taxes.",
         icon: TrendingUp,
@@ -189,14 +151,23 @@ export default function OnboardingPage() {
         setter: setIncome
     },
     {
-        id: 6,
-        title: "Monthly Expenses",
-        description: "Total fixed costs like rent, utilities, and daily essentials.",
-        icon: Building,
+        id: 3,
+        title: "Total Debt",
+        description: "Total balances on loans, credit cards, or mortgages.",
+        icon: CreditCard,
         color: "destructive",
-        value: expenses,
-        setter: setExpenses
+        value: debt,
+        setter: setDebt
     }
+  ];
+
+  const categoryIcons = [
+    { id: 'food', label: 'Food', icon: Utensils, color: 'text-orange-400' },
+    { id: 'travel', label: 'Travel', icon: Car, color: 'text-teal-400' },
+    { id: 'rent', label: 'Rent', icon: Home, color: 'text-blue-400' },
+    { id: 'utilities', label: 'Utilities', icon: Zap, color: 'text-yellow-400' },
+    { id: 'health', label: 'Health', icon: HeartPulse, color: 'text-red-400' },
+    { id: 'shopping', label: 'Shopping', icon: ShoppingBag, color: 'text-pink-400' },
   ];
 
   return (
@@ -208,12 +179,12 @@ export default function OnboardingPage() {
         {/* Progress Bar */}
         <div className="mb-12 flex items-center justify-between gap-3">
              <div className={cn("h-1.5 flex-1 rounded-full", step >= 0 ? "bg-primary" : "bg-muted/40")} />
-            {steps.map((s) => (
+             {[1,2,3,4].map((i) => (
                 <div 
-                    key={s.id} 
+                    key={i} 
                     className={cn(
                         "h-1.5 flex-1 rounded-full transition-all duration-500",
-                        step >= s.id ? "bg-primary shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-muted/40"
+                        step >= i ? "bg-primary shadow-[0_0_10px_rgba(16,185,129,0.5)]" : "bg-muted/40"
                     )} 
                 />
             ))}
@@ -233,7 +204,7 @@ export default function OnboardingPage() {
                             <Globe className="h-10 w-10" />
                         </div>
                         <h1 className="font-heading text-4xl font-bold tracking-tight">Select Base Currency</h1>
-                        <p className="text-muted-foreground text-lg">Every ledger entry will be tracked in this denomination.</p>
+                        <p className="text-muted-foreground text-lg">Your entire dashboard will use this currency.</p>
                     </div>
 
                     <div className="grid grid-cols-2 gap-4">
@@ -271,10 +242,10 @@ export default function OnboardingPage() {
                         onClick={() => setStep(1)}
                         className="w-full h-16 rounded-2xl text-lg font-bold gap-3 shadow-xl shadow-primary/20"
                     >
-                        Set Currency & Continue <ArrowRight className="h-6 w-6" />
+                        Begin Audit <ArrowRight className="h-6 w-6" />
                     </Button>
                 </motion.div>
-            ) : (
+            ) : step <= 3 ? (
                 <motion.div
                 key={step}
                 initial={{ opacity: 0, x: 20, scale: 0.98 }}
@@ -319,30 +290,81 @@ export default function OnboardingPage() {
                     <Button 
                         variant="ghost"
                         onClick={() => setStep(step - 1)}
-                        className="h-16 rounded-2xl text-lg font-bold hover:bg-muted/50"
+                        className="h-16 rounded-2xl text-lg font-bold"
                     >
                         Back
                     </Button>
-                  
-                  {step < steps.length ? (
-                      <Button 
-                          onClick={() => setStep(step + 1)}
-                          disabled={!steps[step-1].value}
-                          className="h-16 rounded-2xl text-lg font-bold gap-3 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                      >
-                          Continue <ArrowRight className="h-6 w-6" />
-                      </Button>
-                  ) : (
-                      <Button 
-                          onClick={handleComplete}
-                          disabled={isLoading || !steps[step-1].value}
-                          className="h-16 rounded-2xl text-lg font-bold gap-3 shadow-xl shadow-primary/20 hover:scale-[1.02] active:scale-[0.98] transition-all"
-                      >
-                          {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Finalize Profile <ArrowRight className="h-6 w-6" /></>}
-                      </Button>
-                  )}
+                    <Button 
+                        onClick={() => setStep(step + 1)}
+                        disabled={!steps[step-1].value}
+                        className="h-16 rounded-2xl text-lg font-bold gap-3 shadow-xl shadow-primary/20"
+                    >
+                        Continue <ArrowRight className="h-6 w-6" />
+                    </Button>
                 </div>
               </motion.div>
+            ) : (
+                <motion.div
+                    key={step}
+                    initial={{ opacity: 0, scale: 0.95 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    className="space-y-8"
+                >
+                    <div className="text-center space-y-4">
+                        <div className="inline-flex h-20 w-20 items-center justify-center rounded-3xl mb-4 bg-primary/10 text-primary shadow-2xl">
+                            <Utensils className="h-10 w-10" />
+                        </div>
+                        <h1 className="font-heading text-4xl font-bold tracking-tight">Spending Split</h1>
+                        <p className="text-muted-foreground text-lg">Break down your average monthly costs.</p>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        {categoryIcons.map((cat) => (
+                            <div key={cat.id} className="relative group">
+                                <cat.icon className={cn("absolute left-4 top-1/2 -translate-y-1/2 h-4 w-4", cat.color)} />
+                                <input 
+                                    type="number"
+                                    placeholder={cat.label}
+                                    value={expenseCategories[cat.id as keyof typeof expenseCategories]}
+                                    onChange={(e) => setExpenseCategories({...expenseCategories, [cat.id]: e.target.value})}
+                                    className="w-full bg-card/40 border border-border/40 rounded-xl py-4 pl-12 pr-16 outline-none focus:border-primary/40 focus:bg-primary/5 transition-all font-bold text-sm shadow-inner [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+                                />
+                                <span className="absolute right-5 top-1/2 -translate-y-1/2 text-[10px] font-bold text-muted-foreground/40 uppercase group-focus-within:text-primary transition-colors pointer-events-none">
+                                    {cat.label}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="p-6 rounded-2xl bg-muted/20 border border-border/40 flex items-center justify-between">
+                        <div>
+                            <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">Calculated Monthly Total</p>
+                            <p className="text-2xl font-bold font-heading text-foreground">
+                                {currency === 'USD' ? '$' : '₹'}{totalMonthlyExpenses.toLocaleString()}
+                            </p>
+                        </div>
+                        <div className="h-12 w-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary border border-primary/20">
+                            <TrendingUp className="h-6 w-6" />
+                        </div>
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-4">
+                        <Button 
+                            variant="ghost"
+                            onClick={() => setStep(step - 1)}
+                            className="h-16 rounded-2xl text-lg font-bold"
+                        >
+                            Back
+                        </Button>
+                        <Button 
+                            onClick={handleComplete}
+                            disabled={isLoading || totalMonthlyExpenses === 0}
+                            className="h-16 rounded-2xl text-lg font-bold gap-3 shadow-xl shadow-primary/20"
+                        >
+                            {isLoading ? <Loader2 className="h-6 w-6 animate-spin" /> : <>Finalize Audit <ArrowRight className="h-6 w-6" /></>}
+                        </Button>
+                    </div>
+                </motion.div>
             )}
         </AnimatePresence>
       </div>

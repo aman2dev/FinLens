@@ -33,7 +33,7 @@ export default function WealthPage() {
   // Dynamic Wealth History (Last 6 entries)
   const wealthHistory = useMemo(() => {
     const sorted = [...transactions]
-        .filter(t => !t.description.includes("Benchmark") && !t.description.includes("Baseline"))
+        .filter(t => !t.description.includes("Benchmark") && !t.description.includes("Expense Baseline"))
         .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
     
     let runningBalance = 0;

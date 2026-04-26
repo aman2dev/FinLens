@@ -60,7 +60,7 @@ export function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
     await addTransaction({
       description,
       amount: finalAmount,
-      category,
+      category: type === 'income' ? 'Assets' : category, // Default income to Assets
       date: new Date().toISOString(),
       type,
       is_shared: isShared,
@@ -149,7 +149,7 @@ export function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div className="space-y-2">
+                    <div className={cn("space-y-2", type === 'income' ? "sm:col-span-2" : "")}>
                         <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Amount ({currency})</label>
                         <div className="relative group/input">
                             <DollarSign className="absolute left-5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground group-focus-within/input:text-primary transition-colors" />
@@ -165,88 +165,92 @@ export function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                         </div>
                     </div>
 
-                    <div className="space-y-2 relative">
-                        <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Category</label>
+                    {type === 'expense' && (
+                        <div className="space-y-2 relative">
+                            <label className="text-[10px] font-bold uppercase tracking-widest text-muted-foreground ml-1">Category</label>
+                            <button 
+                                type="button"
+                                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+                                className="w-full bg-card border border-border/60 rounded-2xl py-5 px-6 flex items-center justify-between shadow-inner group hover:border-primary/40 transition-all"
+                            >
+                                <div className="flex items-center gap-3">
+                                    <selectedCategory.icon className={cn("h-5 w-5", selectedCategory.color)} />
+                                    <span className="font-bold text-sm">{selectedCategory.label}</span>
+                                </div>
+                                <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-300", isCategoryOpen && "rotate-180")} />
+                            </button>
+
+                            <AnimatePresence>
+                                {isCategoryOpen && (
+                                    <motion.div 
+                                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                                        className="absolute left-0 right-0 top-[calc(100%+8px)] z-[80] bg-card border border-border/60 rounded-[2rem] p-3 shadow-2xl max-h-[250px] overflow-y-auto scrollbar-hide"
+                                    >
+                                        <div className="grid grid-cols-1 gap-1">
+                                            {categoryConfigs.map((config) => {
+                                                const Icon = config.icon;
+                                                const isActive = category === config.label;
+                                                return (
+                                                    <button
+                                                        key={config.label}
+                                                        type="button"
+                                                        onClick={() => {
+                                                            setCategory(config.label);
+                                                            setIsCategoryOpen(false);
+                                                        }}
+                                                        className={cn(
+                                                            "flex items-center justify-between p-3 rounded-xl transition-all group/item",
+                                                            isActive ? "bg-primary/10 text-primary" : "hover:bg-muted/50"
+                                                        )}
+                                                    >
+                                                        <div className="flex items-center gap-3">
+                                                            <Icon className={cn("h-4 w-4", config.color)} />
+                                                            <span className={cn("text-xs font-bold", !isActive && "text-muted-foreground font-semibold")}>
+                                                                {config.label}
+                                                            </span>
+                                                        </div>
+                                                        {isActive && <Check className="h-3.5 w-3.5" />}
+                                                    </button>
+                                                )
+                                            })}
+                                        </div>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        </div>
+                    )}
+                </div>
+
+                {type === 'expense' && (
+                    <div className="flex items-center justify-between p-5 rounded-3xl bg-muted/10 border border-border/40 group hover:border-primary/20 transition-all">
+                        <div className="flex items-center gap-3">
+                            <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 transition-transform group-hover:scale-110">
+                                <UsersIcon className="h-5 w-5" />
+                            </div>
+                            <div>
+                                <p className="text-sm font-bold">Split this bill?</p>
+                                <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Sharing with others</p>
+                            </div>
+                        </div>
                         <button 
                             type="button"
-                            onClick={() => setIsCategoryOpen(!isCategoryOpen)}
-                            className="w-full bg-card border border-border/60 rounded-2xl py-5 px-6 flex items-center justify-between shadow-inner group hover:border-primary/40 transition-all"
-                        >
-                            <div className="flex items-center gap-3">
-                                <selectedCategory.icon className={cn("h-5 w-5", selectedCategory.color)} />
-                                <span className="font-bold text-sm">{selectedCategory.label}</span>
-                            </div>
-                            <ChevronDown className={cn("h-4 w-4 text-muted-foreground transition-transform duration-300", isCategoryOpen && "rotate-180")} />
-                        </button>
-
-                        <AnimatePresence>
-                            {isCategoryOpen && (
-                                <motion.div 
-                                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                                    exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                                    className="absolute left-0 right-0 top-[calc(100%+8px)] z-[80] bg-card border border-border/60 rounded-[2rem] p-3 shadow-2xl max-h-[250px] overflow-y-auto scrollbar-hide"
-                                >
-                                    <div className="grid grid-cols-1 gap-1">
-                                        {categoryConfigs.map((config) => {
-                                            const Icon = config.icon;
-                                            const isActive = category === config.label;
-                                            return (
-                                                <button
-                                                    key={config.label}
-                                                    type="button"
-                                                    onClick={() => {
-                                                        setCategory(config.label);
-                                                        setIsCategoryOpen(false);
-                                                    }}
-                                                    className={cn(
-                                                        "flex items-center justify-between p-3 rounded-xl transition-all group/item",
-                                                        isActive ? "bg-primary/10 text-primary" : "hover:bg-muted/50"
-                                                    )}
-                                                >
-                                                    <div className="flex items-center gap-3">
-                                                        <Icon className={cn("h-4 w-4", config.color)} />
-                                                        <span className={cn("text-xs font-bold", !isActive && "text-muted-foreground font-semibold")}>
-                                                            {config.label}
-                                                        </span>
-                                                    </div>
-                                                    {isActive && <Check className="h-3.5 w-3.5" />}
-                                                </button>
-                                            )
-                                        })}
-                                    </div>
-                                </motion.div>
+                            onClick={() => setIsShared(!isShared)}
+                            className={cn(
+                                "h-7 w-12 rounded-full transition-all relative border border-border/40 p-1",
+                                isShared ? "bg-primary border-primary" : "bg-muted/50"
                             )}
-                        </AnimatePresence>
+                        >
+                            <motion.div 
+                                animate={{ x: isShared ? 20 : 0 }}
+                                className="h-5 w-5 rounded-full bg-white shadow-sm"
+                            />
+                        </button>
                     </div>
-                </div>
+                )}
 
-                <div className="flex items-center justify-between p-5 rounded-3xl bg-muted/10 border border-border/40 group hover:border-primary/20 transition-all">
-                    <div className="flex items-center gap-3">
-                        <div className="h-10 w-10 rounded-xl bg-primary/5 flex items-center justify-center text-primary border border-primary/10 transition-transform group-hover:scale-110">
-                            <UsersIcon className="h-5 w-5" />
-                        </div>
-                        <div>
-                            <p className="text-sm font-bold">Split this bill?</p>
-                            <p className="text-[10px] text-muted-foreground uppercase font-bold tracking-tight">Sharing with others</p>
-                        </div>
-                    </div>
-                    <button 
-                        type="button"
-                        onClick={() => setIsShared(!isShared)}
-                        className={cn(
-                            "h-7 w-12 rounded-full transition-all relative border border-border/40 p-1",
-                            isShared ? "bg-primary border-primary" : "bg-muted/50"
-                        )}
-                    >
-                        <motion.div 
-                            animate={{ x: isShared ? 20 : 0 }}
-                            className="h-5 w-5 rounded-full bg-white shadow-sm"
-                        />
-                    </button>
-                </div>
-
-                {isShared && (
+                {(type === 'expense' && isShared) && (
                     <motion.div 
                         initial={{ opacity: 0, height: 0 }}
                         animate={{ opacity: 1, height: 'auto' }}
@@ -293,7 +297,7 @@ export function AddEntryModal({ isOpen, onClose }: { isOpen: boolean; onClose: (
                     )}
                 >
                     <span className="relative z-10 flex items-center justify-center gap-2">
-                        Save Entry
+                        {type === 'income' ? 'Commit Earnings' : 'Save Entry'}
                     </span>
                     <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </Button>

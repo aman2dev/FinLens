@@ -35,6 +35,12 @@ export default function DashboardLayout({
   React.useEffect(() => {
     if (!loading && !user) {
       router.push("/auth/login");
+    } else if (!loading && user) {
+      // Redirect to onboarding if profile is incomplete
+      const isOnboardingComplete = user.user_metadata?.currency_preference;
+      if (!isOnboardingComplete) {
+        router.push("/auth/onboarding");
+      }
     }
   }, [user, loading, router]);
 

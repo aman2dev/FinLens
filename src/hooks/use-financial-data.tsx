@@ -45,6 +45,8 @@ interface FinancialContextType {
   refreshData: () => Promise<void>;
   getTotalWealth: () => number;
   getActiveDebt: () => number;
+  settleAllDebts: () => Promise<void>;
+  settleUserDebts: (name: string) => Promise<void>;
   isSharedView: boolean;
   setIsSharedView: (v: boolean) => void;
 }
@@ -156,7 +158,10 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
 
   const getTotalWealth = () => {
     return transactions.reduce((acc, t) => {
-      if (t.description.includes("Benchmark") || t.description.includes("Baseline")) return acc;
+      // Exclude income/expense benchmarks, but INCLUDE the initial wealth baseline
+      if (t.description.includes("Benchmark")) return acc;
+      if (t.description.includes("Expense Baseline")) return acc;
+      
       if (t.type === 'income') return acc + (t.amount || 0);
       if (t.type === 'expense') return acc - (t.amount || 0); 
       return acc;
@@ -167,6 +172,97 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
     return transactions
       .filter((t) => t.category === 'Debt' || t.description.includes("Obligations"))
       .reduce((acc, t) => acc + (t.amount || 0), 0);
+  };
+
+  const settleAllDebts = async () => {
+    if (!user) return;
+    const debtsToSettle = transactions.filter(t => t.is_shared && Number(t.owes_me || 0) > 0);
+    if (debtsToSettle.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from("transactions")
+        .update({ owes_me: 0 })
+        .in("id", debtsToSettle.map(t => t.id));
+
+      if (!error) {
+        // Group by user to create history entries
+        const groups: Record<string, number> = {};
+        debtsToSettle.forEach(t => {
+            const name = t.shared_with || "Shared Expense";
+            groups[name] = (groups[name] || 0) + Number(t.owes_me || 0);
+        });
+
+        const paybackEntries = Object.entries(groups).map(([name, amount]) => ({
+            user_id: user.id,
+            description: `Payback from ${name}`,
+            amount: amount,
+            category: "Other" as Category,
+            type: "income" as const,
+            date: new Date().toISOString()
+        }));
+
+        if (paybackEntries.length > 0) {
+            await supabase.from("transactions").insert(paybackEntries);
+        }
+
+        // Update local state
+        setTransactions(prev => prev.map(t => 
+          (t.is_shared && Number(t.owes_me || 0) > 0) ? { ...t, owes_me: 0 } : t
+        ));
+
+        await refreshData();
+      }
+    } catch (err) {
+      console.error("Error settling debts:", err);
+    }
+  };
+
+  const settleUserDebts = async (name: string) => {
+    if (!user) return;
+    
+    // Group debts by user name or description
+    const userDebts = transactions.filter(t => 
+      t.is_shared && 
+      (t.shared_with === name || (!t.shared_with && name === "Shared Expense")) && 
+      Number(t.owes_me || 0) > 0
+    );
+    
+    if (userDebts.length === 0) return;
+
+    try {
+      const { error } = await supabase
+        .from("transactions")
+        .update({ owes_me: 0 })
+        .in("id", userDebts.map(t => t.id));
+
+      if (!error) {
+        // Calculate total settled to create an income entry
+        const totalSettled = userDebts.reduce((acc, t) => acc + Number(t.owes_me || 0), 0);
+        
+        // Create an "Income" transaction representing the payback
+        if (totalSettled > 0) {
+            await supabase.from("transactions").insert([{
+                user_id: user.id,
+                description: `Payback from ${name}`,
+                amount: totalSettled,
+                category: "Other",
+                type: "income",
+                date: new Date().toISOString()
+            }]);
+        }
+
+        setTransactions(prev => prev.map(t => {
+          const isTarget = t.is_shared && (t.shared_with === name || (!t.shared_with && name === "Shared Expense")) && Number(t.owes_me || 0) > 0;
+          return isTarget ? { ...t, owes_me: 0 } : t;
+        }));
+        
+        // Refresh to see the new income entry
+        await refreshData();
+      }
+    } catch (err) {
+      console.error("Error settling user debts:", err);
+    }
   };
 
   return (
@@ -183,6 +279,8 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
       refreshData,
       getTotalWealth,
       getActiveDebt,
+      settleAllDebts,
+      settleUserDebts,
       isSharedView,
       setIsSharedView
     }}>
