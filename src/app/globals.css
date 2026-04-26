@@ -70,6 +70,7 @@
     --chart-5: 27 87% 67%;
     --radius: 0.625rem;
   }
+
   .dark {
     --background: 0 0% 4%;
     --foreground: 0 0% 98%;
@@ -102,7 +103,14 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground;
+  }
+
+  button, 
+  a,
+  [role="button"] {
+    cursor: pointer !important;
   }
 }
