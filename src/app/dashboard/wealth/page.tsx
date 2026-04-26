@@ -141,7 +141,7 @@ export default function WealthPage() {
                             tick={{ fontSize: 11, fill: 'hsl(var(--muted-foreground))', fontWeight: 'bold' }}
                         />
                         <Tooltip 
-                            formatter={(value: number) => formatCurrency(value)}
+                            formatter={(value: any) => formatCurrency(Number(value || 0))}
                             contentStyle={{ 
                                 backgroundColor: 'hsl(var(--card))', 
                                 border: '1px solid hsl(var(--border)/0.5)', 
@@ -185,7 +185,7 @@ export default function WealthPage() {
                             ))}
                         </Pie>
                         <Tooltip 
-                            formatter={(value: number) => formatCurrency(value)}
+                            formatter={(value: any) => formatCurrency(Number(value || 0))}
                             contentStyle={{ backgroundColor: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '1rem' }}
                         />
                     </PieChart>

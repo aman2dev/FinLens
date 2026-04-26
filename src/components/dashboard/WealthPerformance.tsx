@@ -56,7 +56,7 @@ export function WealthPerformance({ range = "1M" }: { range?: string }) {
   }
 
   return (
-    <div className="h-[320px] w-full mt-4">
+    <div className="h-[280px] w-full mt-2">
       <ResponsiveContainer width="100%" height="100%">
         <AreaChart
           data={chartData}
@@ -89,7 +89,7 @@ export function WealthPerformance({ range = "1M" }: { range?: string }) {
             tick={{ fill: "hsl(var(--muted-foreground))", fontSize: 10, fontWeight: 'bold' }}
           />
           <Tooltip 
-            formatter={(value: number) => [formatYAxis(value), "Net Worth"]}
+            formatter={(value: any) => [formatYAxis(Number(value || 0)), "Net Worth"]}
             contentStyle={{ 
               backgroundColor: "hsl(var(--card))", 
               border: "1px solid hsl(var(--border))",

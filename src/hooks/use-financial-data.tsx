@@ -41,6 +41,7 @@ interface FinancialContextType {
   formatCurrency: (amount: number) => string;
   addTransaction: (t: Omit<Transaction, "id" | "user_id">) => Promise<void>;
   deleteTransaction: (id: string) => Promise<void>;
+  updateProfile: (data: any) => Promise<void>;
   refreshData: () => Promise<void>;
   getTotalWealth: () => number;
   getActiveDebt: () => number;
@@ -114,6 +115,15 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  const updateProfile = async (data: any) => {
+    if (!user) return;
+    const { error } = await supabase.auth.updateUser({ data });
+    if (error) {
+        console.error("DEBUG: Error updating profile:", error);
+    }
+    // Note: onAuthStateChange will automatically update the user state
+  };
+
   const formatCurrency = (amount: number) => {
     return new Intl.NumberFormat(currency === "USD" ? "en-US" : "en-IN", {
       style: "currency",
@@ -169,6 +179,7 @@ export function FinancialProvider({ children }: { children: React.ReactNode }) {
       formatCurrency,
       addTransaction, 
       deleteTransaction,
+      updateProfile,
       refreshData,
       getTotalWealth,
       getActiveDebt,

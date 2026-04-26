@@ -53,7 +53,8 @@ export function SpecsSection() {
                 initial="hidden"
                 whileInView="visible"
                 whileHover={{ y: -5, scale: 1.02 }}
-                viewport={{ once: true, delay: 0.1 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.1 }}
                 className="p-8 rounded-[2.5rem] bg-card/10 border border-border/40 hover:bg-card/20 hover:border-primary/20 transition-all cursor-pointer relative group"
             >
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2.5rem]" />
@@ -70,7 +71,8 @@ export function SpecsSection() {
                 initial="hidden"
                 whileInView="visible"
                 whileHover={{ y: -5, scale: 1.02 }}
-                viewport={{ once: true, delay: 0.2 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.2 }}
                 className="p-8 rounded-[2.5rem] bg-card/10 border border-border/40 hover:bg-card/20 hover:border-primary/20 transition-all cursor-pointer relative group"
             >
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2.5rem]" />
@@ -87,7 +89,8 @@ export function SpecsSection() {
                 initial="hidden"
                 whileInView="visible"
                 whileHover={{ y: -5, scale: 1.01 }}
-                viewport={{ once: true, delay: 0.3 }}
+                viewport={{ once: true }}
+                transition={{ delay: 0.3 }}
                 className="md:col-span-2 lg:col-span-2 p-8 rounded-[2.5rem] bg-card/10 border border-border/40 hover:bg-card/20 hover:border-primary/20 transition-all cursor-pointer flex items-center justify-between gap-6 relative group"
             >
                 <div className="absolute inset-0 bg-primary/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-[2.5rem]" />

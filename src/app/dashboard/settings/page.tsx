@@ -49,7 +49,7 @@ export default function SettingsPage() {
         `"${t.description.replace(/"/g, '""')}"`,
         t.category,
         t.amount,
-        t.isShared
+        t.is_shared ? "Yes" : "No"
       ].join(","))
     ].join("\n");
 
