@@ -19,10 +19,7 @@ export default function SignupPage() {
         <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_bottom_right,rgba(16,185,129,0.1),transparent_50%)]" />
         
         <Link href="/" className="group flex items-center gap-2 w-fit">
-          <div className="h-10 w-10 rounded-xl bg-primary flex items-center justify-center transition-transform group-hover:scale-110 shadow-lg shadow-primary/20">
-            <div className="h-5 w-5 bg-background rounded-sm rotate-45" />
-          </div>
-          <span className="font-heading text-2xl font-bold tracking-tight text-foreground">
+          <span className="font-heading text-3xl font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
             FinLens
           </span>
         </Link>

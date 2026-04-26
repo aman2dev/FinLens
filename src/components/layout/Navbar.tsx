@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Link from "next/link";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
@@ -10,54 +10,38 @@ export function Navbar() {
   const [isScrolled, setIsScrolled] = useState(false);
   const { scrollY } = useScroll();
 
-  useEffect(() => {
-    return scrollY.onChange((latest) => {
-      setIsScrolled(latest > 20);
-    });
-  }, [scrollY]);
+  useMotionValueEvent(scrollY, "change", (latest) => {
+    setIsScrolled(latest > 50);
+  });
 
   return (
-    <motion.nav
+    <nav
       className={cn(
-        "fixed top-0 z-50 w-full transition-all duration-300",
+        "fixed inset-x-0 top-0 z-[500] w-full transition-all duration-300",
         isScrolled 
-          ? "border-b border-border/40 bg-background/60 py-3 backdrop-blur-md" 
+          ? "border-b border-border/40 bg-background/80 py-3 backdrop-blur-xl shadow-lg" 
           : "bg-transparent py-5"
       )}
     >
-      <div className="container mx-auto flex items-center justify-between px-6">
-        <Link href="/" className="group flex items-center gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center transition-transform group-hover:scale-110">
-            <div className="h-4 w-4 bg-background rounded-sm rotate-45" />
-          </div>
-          <span className="font-heading text-xl font-bold tracking-tight text-foreground">
+      <div className="mx-auto flex h-full max-w-7xl items-center justify-between px-6 sm:px-12">
+        <Link href="/" className="group flex items-center gap-2 shrink-0">
+          <span className="font-heading text-2xl font-bold tracking-tight text-foreground transition-colors group-hover:text-primary">
             FinLens
           </span>
         </Link>
 
-        <div className="hidden items-center gap-8 md:flex">
-          <Link href="#features" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            Features
-          </Link>
-          <Link href="#story" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            Our Story
-          </Link>
-          <Link href="#specs" className="text-sm font-medium text-muted-foreground transition-colors hover:text-primary">
-            Specs
-          </Link>
-        </div>
-
-        <div className="flex items-center gap-4">
+        {/* Right: Auth */}
+        <div className="flex items-center gap-6 shrink-0">
           <Link href="/auth/login" className="text-sm font-bold text-muted-foreground transition-colors hover:text-primary">
             Sign In
           </Link>
           <Link href="/auth/signup">
-            <Button className="rounded-full px-6 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all">
+            <Button className="rounded-full px-8 h-12 font-bold shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all hover:scale-105 active:scale-95">
               Join Now
             </Button>
           </Link>
         </div>
       </div>
-    </motion.nav>
+    </nav>
   );
 }
